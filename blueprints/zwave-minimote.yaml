@@ -1,0 +1,122 @@
+blueprint: #adapter from https://community.home-assistant.io/t/zooz-zen34-remote-automation-legacy-zwave/286465
+  name: Aeon Minimote Remote scene control
+  description: |
+    Use the Aeon Minimote to trigger actions and events. 
+    
+  domain: automation
+  input:
+    zwave_entity:
+      name: Zwave Entity
+      description: The Aeon Minimote to listen for events on.
+      selector:
+        entity:
+          domain: zwave
+    B1_Press:
+      name: press b1
+      selector:
+        action:
+      default: []
+    B1_Hold:
+      name: hold b1
+      selector:
+        action:
+      default: []
+    B2_Press:
+      name: press b2
+      selector:
+        action:
+      default: []
+    B2_Hold:
+      name: hold b2
+      selector:
+        action:
+      default: []
+    B3_Press:
+      name: press b3
+      selector:
+        action:
+      default: []
+    B3_Hold:
+      name: hold b3
+      selector:
+        action:
+      default: []
+    B4_Press:
+      name: press b4
+      selector:
+        action:
+      default: []
+    B4_Hold:
+      name: hold b4
+      selector:
+        action:
+      default: []
+    
+
+mode: single
+
+trigger:
+  - platform: event
+    event_type: zwave.scene_activated
+
+variables:
+  logger: blueprint.zwave_scene_activation
+  zwave_entity: !input zwave_entity
+
+action:
+  - choose:
+    # IF triggered node_id is zwave_entity node_id
+      - conditions:
+          - condition: template
+            value_template: "{{ trigger.event.data.node_id == state_attr(zwave_entity, 'node_id') }}"
+        sequence:
+          - choose:
+            # IF b1 press
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.event.data.scene_id == 1  }}"
+                sequence: !input B1_Press
+            # IF b1 hold
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.event.data.scene_id == 2  }}"
+                sequence: !input B1_Hold
+            # IF b2 press
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.event.data.scene_id == 3 }}"
+                sequence: !input B2_Press
+            # IF b2 hold
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.event.data.scene_id == 4 }}"
+                sequence: !input B2_Hold
+            # IF b3 press
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.event.data.scene_id == 5 }}"
+                sequence: !input B3_Press
+            # IF b3 hold
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.event.data.scene_id == 6 }}"
+                sequence: !input B3_Hold
+            # IF b4 press
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.event.data.scene_id == 7 }}"
+                sequence: !input B4_Press
+            # IF b4 hold
+              - conditions:
+                  - condition: template
+                    value_template: "{{ trigger.event.data.scene_id == 8 }}"
+                sequence: !input B4_Hold
+            # ELSE: unhandled scene_id/scene_data
+            default:
+              - service: system_log.write
+                data:
+                  level: debug
+                  logger: "{{ logger }}"
+                  message: "Activated scene '{{ trigger.event.data.scene_label }}' ({{ trigger.event.data.scene_id }}) with value '{{ trigger.event.data.scene_value_label }}' ({{ trigger.event.data.scene_data }}) for node '{{ zwave_entity }}' ({{ trigger.event.data.node_id }})"
+    # ELSE: unhandled zwave event
+    default: []
