@@ -1,4 +1,4 @@
-blueprint: #adapter from https://community.home-assistant.io/t/zooz-zen34-remote-automation-legacy-zwave/286465
+blueprint: #adapted from https://community.home-assistant.io/t/zooz-zen34-remote-automation-legacy-zwave/286465
   name: Aeon Minimote Remote scene control
   description: |
     Use the Aeon Minimote to trigger actions and events. 
